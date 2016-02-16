@@ -37,9 +37,13 @@ file.readf("%d\n", &nr);
 ```
 int nr = file.readln.chomp.to!int;
 ```
-This is takes 107.4% compared to A.
+This is takes 106.1% compared to A.
 
 However when there is __unknown whitespace__ this method performs faster!
+
+### Comparison with Python
+
+~ 318%
 
 How to parse a line that contains multiple int?
 ----------------------------------------------
@@ -78,6 +82,10 @@ foreach(j; 0..nr_tests_per_line){
 ```
 
 This method requires to know the array length __in advance__ and even takes 236.7% than A).
+
+### Comparison with Python
+
+~ 441%
 
 
 How to run the tests

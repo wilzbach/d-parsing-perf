@@ -2,14 +2,16 @@
     "buildDir": "build",
     "tests": {
         "readln_int": {
-            "files": ["readln_readf", "readln_chomp"],
+            "files": ["readf", "chomp"],
+            "scripts": ["main.py"],
             "gen_test_small": "$folder/gen_test.d $file 1000000",
             "gen_test_big": "$folder/gen_test.d $file 100000000"
         },
         "readln_ints": {
-            "files": ["readln_splitmap", "readln_splitmap_array", "readln_readfarr"],
+            "files": ["splitmap", "splitmap_array", "readfarr"],
+            "scripts": ["main.py"],
             "gen_test_small": "$folder/gen_test.d $file 100000 10",
-            "gen_test_big": "$folder/gen_test.d $file 10000000 100"
+            "gen_test_big": "$folder/gen_test.d $file 1000000 100"
         }
     }
 }

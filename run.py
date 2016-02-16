@@ -44,8 +44,9 @@ def main():
             test_command = test_command.replace("$folder", join(root_dir, test_name)).split(" ")
             p = run(test_command, stdout=subprocess.PIPE)
 
-        stats = {}
-        check_stdout = None
+        files_to_test = []
+
+        # build all d files
         for test_file in test_obj['files']:
             print(".", end='')
             src_file = join(root_dir, test_name, "%s.d" % test_file)
@@ -55,8 +56,20 @@ def main():
             if p.returncode != 0:
                 print("COMPILE ERROR")
                 print(p.stdout)
-            start_time = time.time()
             run_command = ("%s %s" % (build_file, test_dummy_data)).split(" ")
+            files_to_test.append((test_file, run_command))
+
+        # also support interpreted languages
+        if test_obj['scripts']:
+            for test_file in test_obj['scripts']:
+                src_file = join(root_dir, test_name, "%s" % test_file)
+                run_command = ("%s %s" % (src_file, test_dummy_data)).split(" ")
+                files_to_test.append((test_file, run_command))
+
+        stats = {}
+        check_stdout = None
+        for test_file, run_command in files_to_test:
+            start_time = time.time()
             p = run(run_command, stdout=subprocess.PIPE)
             if check_stdout is not None:
                 if check_stdout != p.stdout.strip():
