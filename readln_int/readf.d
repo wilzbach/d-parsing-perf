@@ -11,7 +11,6 @@ void main(string[] args)
         return;
     }
     auto file = new File(args[1], "r");
-    scope(exit) file.close();
     int nr_tests;
     file.readf(" %d ", &nr_tests);
     long counter = 0;

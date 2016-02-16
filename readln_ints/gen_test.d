@@ -8,12 +8,11 @@ import std.algorithm;
 
 void main(string[] args)
 {
-    if(args.length < 3){   
+    if(args.length < 3){
         writeln("<file> <nr> <per-line>");
         return;
     }
     auto file = new File(args[1], "w");
-    scope(exit) file.close();
     int nr_tests = args[2].to!int;
     int nr_tests_per_line = args[3].to!int;
     file.writefln("%d %d", nr_tests, nr_tests_per_line);

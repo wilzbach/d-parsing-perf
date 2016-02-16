@@ -7,12 +7,11 @@ import std.conv; // to
 
 void main(string[] args)
 {
-    if(args.length == 1){   
+    if(args.length == 1){
         writeln("No args");
         return;
     }
     auto file = new File(args[1], "r");
-    scope(exit) file.close();
     int nr_tests, nr_tests_per_line;
     file.readf("%d %d\n", &nr_tests, &nr_tests_per_line);
     long counter = 0;

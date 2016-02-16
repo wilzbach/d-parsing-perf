@@ -15,8 +15,10 @@ void main(string[] args)
     int nr_tests, nr_tests_per_line;
     file.readf("%d %d\n", &nr_tests, &nr_tests_per_line);
     long counter = 0;
+    char [] buf;
     foreach(i; 0..nr_tests){
-        auto nrs = file.readln.split.map!(to!int).array;
+        file.readln(buf);
+        auto nrs = buf.split.map!(to!int);
         counter += nrs.sum;
     }
     writeln(counter);

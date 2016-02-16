@@ -10,6 +10,17 @@ from subprocess import run
 import argparse
 import shutil
 
+################################################################################
+# This toolchain compiles all variants of a program and compares them with
+# generated input.
+# - It uses `tests.json` to define the input generation.
+# - By default it will run all programs in a folder (use -p to select)
+# - By default it will run all tests (select by putting in nargs)
+# - By default it will run the large test (-s/--small for small sets)
+#
+# Example:
+#  ./run.py readln_ints -p read_mmfile.d,splittermap_array.d
+################################################################################
 
 parser = argparse.ArgumentParser(description="Plot coverage")
 parser.add_argument('tests', nargs='*', default=[], help='Tests to run (default all)')
@@ -17,7 +28,15 @@ parser.add_argument('-s', '--small', action='store_true',
                     default=False, help='Use smaller test set')
 parser.add_argument('-n', '--noclean', action='store_true',
                     default=False, help='Don\'t clean the builddir')
+parser.add_argument('-p', '--programs', default=None, help='Use smaller test set')
 args = parser.parse_args()
+
+
+if args.programs:
+    args.programs = args.programs.split(",")
+
+compile_exts = ["d", "cpp"]
+excludedFiles = ["foo", "gen_test.d"]
 
 
 def main():
@@ -45,26 +64,46 @@ def main():
             p = run(test_command, stdout=subprocess.PIPE)
 
         files_to_test = []
+        if args.programs:
+            programs = args.programs
+        else:
+            programs = os.listdir(join(root_dir, test_name))
 
         # build all d files
-        for test_file in test_obj['files']:
+        for test_file_full in programs:
+            if test_file_full in excludedFiles:
+                continue
             print(".", end='')
-            src_file = join(root_dir, test_name, "%s.d" % test_file)
-            build_file = join(buildDir, test_file)
-            compile_command = ("gdc -O3 %s -o %s" % (src_file, build_file)).split(" ")
-            p = run(compile_command, stdout=subprocess.PIPE)
-            if p.returncode != 0:
-                print("COMPILE ERROR")
-                print(p.stdout)
-            run_command = ("%s %s" % (build_file, test_dummy_data)).split(" ")
-            files_to_test.append((test_file, run_command))
+            if "." not in test_file_full:
+                print("invalid: %s", test_file_full)
+                continue
 
-        # also support interpreted languages
-        if test_obj['scripts']:
-            for test_file in test_obj['scripts']:
-                src_file = join(root_dir, test_name, "%s" % test_file)
+            test_file, file_ext = test_file_full.split(".")
+            build_file = join(buildDir, test_name + "_" + test_file)
+            src_file = join(root_dir, test_name, test_file_full)
+
+            if file_ext in compile_exts:
+                if file_ext == "d":
+                    compile_command = ("ldc -O3 -release %s" % (src_file)).split(" ")
+                    # hack ldc doesn't allow one to specify output files
+                    build_file = join(buildDir, test_file)
+                elif file_ext == "cpp":
+                    compile_command = ("g++ -O3 --std=c++11 %s -o %s" % (src_file, build_file)).split(" ")
+
+                p = subprocess.Popen(compile_command, cwd=buildDir, stdout=subprocess.PIPE)
+                p.wait()
+                if p.returncode != 0:
+                    print("COMPILE ERROR")
+                    print(p.stdout)
+                run_command = ("%s %s" % (build_file, test_dummy_data)).split(" ")
+            elif file_ext == "py":
+                src_file = join(root_dir, test_name, test_file_full)
                 run_command = ("%s %s" % (src_file, test_dummy_data)).split(" ")
-                files_to_test.append((test_file, run_command))
+            else:
+                print("Unknown extension")
+                continue
+
+            files_to_test.append((test_file, run_command))
 
         stats = {}
         check_stdout = None
@@ -73,7 +112,7 @@ def main():
             p = run(run_command, stdout=subprocess.PIPE)
             if check_stdout is not None:
                 if check_stdout != p.stdout.strip():
-                    print("OUTPUT DIFFERENT")
+                    print("OUTPUT DIFFERENT %s", test_file)
             else:
                 check_stdout = p.stdout.strip()
             run_time = time.time() - start_time

@@ -4,6 +4,8 @@ import std.stdio; // File
 import std.array;
 import std.algorithm;
 import std.conv; // to
+import std.csv;
+import std.range;
 
 void main(string[] args)
 {
@@ -16,7 +18,7 @@ void main(string[] args)
     file.readf("%d %d\n", &nr_tests, &nr_tests_per_line);
     long counter = 0;
     foreach(i; 0..nr_tests){
-        auto nrs = file.readln.split.map!(to!int).array;
+        int[] nrs = file.readln.csvReader!int(' ').front.array;
         counter += nrs.sum;
     }
     writeln(counter);
