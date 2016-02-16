@@ -23,7 +23,7 @@ We have a line that contains just a number
 5\n
 ```
 
-Testset contains 100M lines.
+Testset: 100M lines (~240M)
 
 ### A) using `readf`
 
@@ -37,7 +37,7 @@ file.readf("%d\n", &nr);
 ```
 int nr = file.readln.chomp.to!int;
 ```
-This is takes 107% compared to A.
+This is takes 107.4% compared to A.
 
 However when there is __unknown whitespace__ this method performs faster!
 
@@ -45,7 +45,13 @@ How to parse a line that contains multiple int?
 ----------------------------------------------
 <a name="readln-ints"></a>
 
-Testset: 10M lines with 100 numbers
+We have a line that contains multiple numbers
+
+```
+5 3 5 6 9 100\n
+```
+
+Testset: 10M lines with 100 numbers (~2.8G)
 
 ### A) using `file.readln.split.map!(to!int)`
 
@@ -60,7 +66,7 @@ int[] nrs = file.readln.split.map!(to!int).array;
 ```
 
 Prefer to work with ranges. However the runtime overhead to allocate and copy
-the array is only slightly noticabale: 107%.
+the array is only slightly noticeable: 108.3%.
 
 ### C) using `readf`
 
@@ -71,14 +77,14 @@ foreach(j; 0..nr_tests_per_line){
 }
 ```
 
-This method requires to know the array length __in advance__ and even takes 280% than A).
+This method requires to know the array length __in advance__ and even takes 236.7% than A).
 
 
 How to run the tests
 --------------------
 
 
-You will need `gdc` and python3.
+You will need `gdc`, `rdmd` and python3.
 
 ### Running all tests
 
@@ -92,6 +98,9 @@ You will need `gdc` and python3.
 ./run.py readln_ints 
 ```
 ### Running only small tests
+
+Running the large tests might take quite some time, hence to test or develop you
+can use the `-s/--small` flag:
 
 ```
 ./run.py -s

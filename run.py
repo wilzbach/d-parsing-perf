@@ -69,7 +69,11 @@ def main():
         min_runtime = min(stats.items(), key=lambda x: x[1])
         run_times = sorted(stats.items(), key=lambda x: x[1])
         for run_time in run_times:
-            print("\r.%s %.0f%% (%.4f s)" % (run_time[0], run_time[1] / min_runtime[1] * 100, run_time[1]))
+            print("\r.%s %.1f%% (%.4f s)" % (run_time[0], run_time[1] / min_runtime[1] * 100, run_time[1]))
+
+    # our testing files are quite large - remove them
+    if not args.noclean:
+        shutil.rmtree(buildDir)
 
 
 if __name__ == "__main__":
