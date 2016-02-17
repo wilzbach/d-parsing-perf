@@ -4,6 +4,13 @@ import std.mmfile;
 import std.string;
 import std.algorithm;
 import std.conv;
+import std.range;
+
+auto popi(Range)(ref Range a){
+    auto b = a.front;
+    a.popFront();
+    return b;
+}
 
 void main(string[] args)
 {
@@ -11,20 +18,19 @@ void main(string[] args)
         writeln("No args");
         return;
     }
-    auto mmFile = new MmFile(args[1]);
+    scope mmFile = new MmFile(args[1]);
+    auto file = splitter(cast(string)mmFile[0..mmFile.length], '\n').filter!"!a.empty";
     
     // read header
-    auto file = splitter(cast(string)mmFile[0..mmFile.length], '\n');
-    auto p = splitter(file.front, ' ').map!(to!int);
-    file.popFront();
+    //auto p = file.popi.splitter(' ').map!(to!int).array;
 
     long counter = 0;
+    writeln(file.takeOne.front);
+    writeln(file);
 
     foreach(line; file){
-        auto csv = splitter(line, ' ').map!(to!int).array;
-        if(csv.length > 0){
-            counter += csv.sum;
-        }
+        int[] csv = line.splitter(' ').map!(to!int).array;
+        counter += csv.sum;
     }
     writeln(counter);
 }

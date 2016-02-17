@@ -19,6 +19,7 @@ Index
 <a name="general"></a>
 
 - use `splitter` (`std.algorithm.iterator`) instead of `split` (it's lazy!)
+- `mmFile` is faster (it's cached in your RAM, so don't use it for enormous files)
 
 2) How to parse a line that contains just one int?
 --------------------------------------------------
@@ -68,18 +69,16 @@ Testset: 10M lines with 100 numbers (~2.8G)
 
 ```
 scope mmFile = new MmFile(args[1]);
+auto file = splitter(cast(string)mmFile[0..mmFile.length], '\n').filter!"!a.empty";
 
 // read header
-auto file = splitter(cast(string)mmFile[0..mmFile.length], '\n');
-auto p = splitter(file.front, ' ').map!(to!int);
+auto p = splitter(file.front, ' ').map!(to!int).array;
 file.popFront();
 
 foreach(line; file){
-    scope csv = splitter(line, ' ').map!(to!int).array;
-    if(csv.length > 0){
-            counter += csv.sum;
-        }
-    }
+    int[] csv = line.splitter(' ').map!(to!int).array;
+    counter += csv.sum;
+}
 ```
 
 Using the memory yields the highest performance, however it's also a bit more
@@ -91,14 +90,15 @@ complex.
 int[] nrs = file.readln.splitter.map!(to!int);
 ```
 
+__Recommended!__ (it's easier to remember)
+
 ### C) using `csvReader`
 
 ```
 auto nrs = file.readln.csvReader!int(' ').front;
 ```
 
-This is the fastest if you don't need to work on the array. For working on the
-array `map` is faster!
+The csvReader can be useful if you want to serialize into a struct.
 
 __Don't__ use `file.byLine.joiner("\n").csvReader!int(' ')` - it is more expensive!
 
