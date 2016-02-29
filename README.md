@@ -120,23 +120,31 @@ A lot of methods were tested - as you can see MMFile and `splitter` perform extr
 In fact even better than a normal C (`main_c`) or C++ (`main11`) implementation.
 
 ```
-.read_mmfile 100.0% (2.8312 s)
-.splittermap 135.9% (3.8489 s)
-.splittermap_array 163.2% (4.6207 s)
-*.main11 177.6% (5.0274 s)
-.readcsv 215.5% (6.1004 s)
-.main_vector 217.1% (6.1468 s)
-*.main_c 223.8% (6.3353 s)
-.splitmap_array 243.6% (6.8962 s)
-.splitmap 245.4% (6.9483 s)
-.splitmap_buffer 246.6% (6.9813 s)
-.readcsv_array 256.4% (7.2589 s)
-.readcsv_all 343.7% (9.7305 s)
-*.readfarr 608.5% (17.2269 s)
-.main 773.8% (21.9069 s)
+.read_mmfile 100.0% (2.8641 s)
+.read_mmfile_async 114.8% (3.2872 s)
+.splittermap 128.8% (3.6901 s)
+.splittermap_async 129.2% (3.7001 s)
+.splittermap_async_linewise 132.6% (3.7964 s)
+.splittermap_array 164.8% (4.7198 s)
+*.main11 179.7% (5.1480 s)
+.main_vector 214.6% (6.1450 s)
+.readcsv 219.4% (6.2851 s)
+.splitmap_buffer 231.6% (6.6346 s)
+.splitmap 242.7% (6.9510 s)
+*.main_c 246.1% (7.0484 s)
+.splitmap_array 246.9% (7.0716 s)
+.readcsv_array 254.9% (7.3009 s)
+.readcsv_all 352.4% (10.0941 s)
+*.readfarr 587.8% (16.8339 s)
+.main 781.5% (22.3829 s)
+
 ```
 
-`*` require prior knowledge of the length of numbers
+- `*` require prior knowledge of the length of numbers
+- `async` variations convert are done via parallel map
+  - they always convert their output to arrays
+  - they are better ways to do this
+
 
 How to run the tests
 --------------------

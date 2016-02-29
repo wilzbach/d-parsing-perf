@@ -5,12 +5,7 @@ import std.string;
 import std.algorithm;
 import std.conv;
 import std.range;
-
-auto popi(Range)(ref Range a){
-    auto b = a.front;
-    a.popFront();
-    return b;
-}
+import std.parallelism;
 
 void main(string[] args)
 {
@@ -19,19 +14,21 @@ void main(string[] args)
         return;
     }
     scope mmFile = new MmFile(args[1]);
+
     auto file = splitter(cast(string)mmFile[0..mmFile.length], '\n').filter!"!a.empty";
+    file.popFront;
+    auto lines = file.map!(a => a.splitter(' ').map!(to!int).array);
     
     // read header
     //auto p = file.popi.splitter(' ').map!(to!int).array;
 
     long counter = 0;
-    file.popFront;
     //writeln(file.takeOne.front);
     //writeln(file);
 
-    foreach(line; file){
-        int[] csv = line.splitter(' ').map!(to!int).array;
-        counter += csv.sum;
+    auto asyncReader = taskPool.asyncBuf(lines);
+    foreach(nrs; asyncReader){
+        counter += nrs.sum;
     }
     writeln(counter);
 }
